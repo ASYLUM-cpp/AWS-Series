@@ -2,7 +2,7 @@
 
 ## Overview
 
-This document chronicles my **AWS hands-on series** — Week 2, Day 3 — where I attempted to **deep dive into APIs, Lambda, and JWT authentication**.  
+This document chronicles my **AWS hands-on series** — Week 2, Day 6 — where I attempted to **deep dive into APIs, Lambda, and JWT authentication**.  
 
 The goal was simple on paper: create a **secure, functional CRUD API** for a frontend website.  
 The journey was chaotic, frustrating, and full of learning moments — but immensely rewarding.
