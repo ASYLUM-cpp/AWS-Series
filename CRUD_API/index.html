@@ -535,7 +535,7 @@
     </div>
   </div>
 <script>
-const apiBase = "https://pttt4z9e4a.execute-api.us-west-2.amazonaws.com/prod";
+const apiBase = "#";
 const jwt = localStorage.getItem("jwt");
 
 // Debug: Log JWT token info
@@ -550,10 +550,10 @@ console.log("==========================");
 
 // Redirect to login if JWT is missing
 if (!jwt) {
-  const domain = "https://us-west-2wkp7il04z.auth.us-west-2.amazoncognito.com";
-  const clientId = "4f5ptg37h0dp8343h98qn0039k";
-  const redirectUri = "https://product-bucket-10-1-26.s3.us-west-2.amazonaws.com/callback.html";
-  const scope = "email+openid+phone";
+  const domain = "#";
+  const clientId = "#";
+  const redirectUri = "#";
+  const scope = "#";
   const loginUrl = `${domain}/login/continue?response_type=code&client_id=${clientId}&redirect_uri=${encodeURIComponent(redirectUri)}&scope=${scope}`;
   window.location.href = loginUrl;
 }
@@ -940,3 +940,4 @@ function addProduct() {
 
 </body>
 </html>
+
