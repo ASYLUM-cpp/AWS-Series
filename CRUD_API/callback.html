@@ -143,7 +143,7 @@
       console.log("Authorization code received:", code);
 
       // 2️⃣ Send the code to your Proxy API /auth/exchange endpoint
-      fetch("https://pttt4z9e4a.execute-api.us-west-2.amazonaws.com/prod/auth/exchange", {
+      fetch("#", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ code: code })
@@ -182,3 +182,4 @@
   </script>
 </body>
 </html>
+
