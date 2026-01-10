@@ -1,0 +1,942 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Product Finder - Search & Discover</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    header {
+      text-align: center;
+      color: white;
+      margin-bottom: 40px;
+      animation: fadeInDown 0.8s ease-out;
+      position: relative;
+    }
+
+    h1 {
+      font-size: 3.5rem;
+      margin-bottom: 10px;
+      text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+    }
+
+    .subtitle {
+      font-size: 1.2rem;
+      opacity: 0.95;
+      letter-spacing: 1px;
+    }
+
+    .logout-btn {
+      position: absolute;
+      top: 0;
+      right: 0;
+      background: rgba(255, 255, 255, 0.2);
+      color: white;
+      border: 2px solid white;
+      padding: 10px 25px;
+      border-radius: 50px;
+      font-size: 0.95rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      backdrop-filter: blur(10px);
+    }
+
+    .logout-btn:hover {
+      background: white;
+      color: #667eea;
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(255, 255, 255, 0.3);
+    }
+
+    .search-section {
+      background: white;
+      border-radius: 20px;
+      padding: 30px;
+      margin-bottom: 30px;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+      animation: fadeInUp 0.8s ease-out;
+    }
+
+    .search-controls {
+      display: flex;
+      gap: 15px;
+      flex-wrap: wrap;
+      justify-content: center;
+      align-items: center;
+    }
+
+    input[type="text"] {
+      flex: 1;
+      min-width: 250px;
+      padding: 15px 20px;
+      font-size: 1rem;
+      border: 2px solid #e0e0e0;
+      border-radius: 50px;
+      outline: none;
+      transition: all 0.3s ease;
+    }
+
+    input[type="text"]:focus {
+      border-color: #667eea;
+      box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    }
+
+    button {
+      padding: 15px 35px;
+      font-size: 1rem;
+      font-weight: 600;
+      border: none;
+      border-radius: 50px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .btn-search {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+    }
+
+    .btn-search:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+    }
+
+    .btn-all {
+      background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+      color: white;
+    }
+
+    .btn-all:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 5px 20px rgba(245, 87, 108, 0.4);
+    }
+
+    .btn-clear {
+      background: #6c757d;
+      color: white;
+    }
+
+    .btn-clear:hover {
+      background: #5a6268;
+      transform: translateY(-2px);
+    }
+
+    .btn-add {
+      background: linear-gradient(135deg, #56ab2f 0%, #a8e063 100%);
+      color: white;
+    }
+
+    .btn-add:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 5px 20px rgba(86, 171, 47, 0.4);
+    }
+
+    .btn-delete {
+      background: linear-gradient(135deg, #eb3349 0%, #f45c43 100%);
+      color: white;
+    }
+
+    .btn-delete:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 5px 20px rgba(235, 51, 73, 0.4);
+    }
+
+    .results-section {
+      animation: fadeIn 0.8s ease-out;
+    }
+
+    .results-header {
+      color: white;
+      font-size: 1.5rem;
+      margin-bottom: 20px;
+      text-align: center;
+      font-weight: 600;
+    }
+
+    .products-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 25px;
+      margin-bottom: 30px;
+    }
+
+    .product-card {
+      background: white;
+      border-radius: 15px;
+      padding: 25px;
+      box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+      transition: all 0.3s ease;
+      animation: scaleIn 0.5s ease-out;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .product-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 4px;
+      background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+    }
+
+    .product-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    }
+
+    .product-id {
+      display: inline-block;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 5px 15px;
+      border-radius: 20px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      margin-bottom: 15px;
+    }
+
+    .product-name {
+      font-size: 1.5rem;
+      color: #2c3e50;
+      margin-bottom: 10px;
+      font-weight: 700;
+    }
+
+    .product-category {
+      color: #7f8c8d;
+      font-size: 0.95rem;
+      margin-bottom: 10px;
+      font-style: italic;
+    }
+
+    .product-price {
+      font-size: 2rem;
+      color: #f5576c;
+      font-weight: 700;
+      margin: 15px 0;
+    }
+
+    .product-description {
+      color: #5a6268;
+      line-height: 1.6;
+      margin-bottom: 15px;
+    }
+
+    .product-stock {
+      display: inline-block;
+      padding: 8px 15px;
+      border-radius: 20px;
+      font-size: 0.9rem;
+      font-weight: 600;
+    }
+
+    .in-stock {
+      background: #d4edda;
+      color: #155724;
+    }
+
+    .low-stock {
+      background: #fff3cd;
+      color: #856404;
+    }
+
+    .out-of-stock {
+      background: #f8d7da;
+      color: #721c24;
+    }
+
+    .no-results {
+      text-align: center;
+      color: white;
+      font-size: 1.5rem;
+      padding: 60px 20px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 15px;
+      backdrop-filter: blur(10px);
+    }
+
+    .loading {
+      text-align: center;
+      color: white;
+      font-size: 1.5rem;
+      padding: 40px;
+    }
+
+    .spinner {
+      border: 4px solid rgba(255, 255, 255, 0.3);
+      border-top: 4px solid white;
+      border-radius: 50%;
+      width: 50px;
+      height: 50px;
+      animation: spin 1s linear infinite;
+      margin: 20px auto;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    @keyframes fadeInDown {
+      from {
+        opacity: 0;
+        transform: translateY(-30px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(30px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+      }
+      to {
+        opacity: 1;
+      }
+    }
+
+    @keyframes scaleIn {
+      from {
+        opacity: 0;
+        transform: scale(0.8);
+      }
+      to {
+        opacity: 1;
+        transform: scale(1);
+      }
+    }
+
+    /* Modal Styles */
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.6);
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+      animation: fadeIn 0.3s ease-out;
+    }
+
+    .modal-content {
+      background: white;
+      border-radius: 20px;
+      padding: 35px;
+      max-width: 500px;
+      width: 90%;
+      box-shadow: 0 10px 50px rgba(0, 0, 0, 0.3);
+      animation: scaleIn 0.3s ease-out;
+    }
+
+    .modal-content h2 {
+      color: #2c3e50;
+      margin-bottom: 25px;
+      font-size: 1.8rem;
+    }
+
+    .modal-content label {
+      display: block;
+      color: #5a6268;
+      font-weight: 600;
+      margin-bottom: 5px;
+      margin-top: 10px;
+    }
+
+    .modal-content input,
+    .modal-content textarea {
+      width: 100%;
+      padding: 12px 15px;
+      border: 2px solid #e0e0e0;
+      border-radius: 10px;
+      font-size: 1rem;
+      font-family: inherit;
+      transition: border-color 0.3s ease;
+    }
+
+    .modal-content input:focus,
+    .modal-content textarea:focus {
+      outline: none;
+      border-color: #667eea;
+      box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    }
+
+    .modal-content textarea {
+      min-height: 80px;
+      resize: vertical;
+    }
+
+    .modal-buttons {
+      display: flex;
+      justify-content: flex-end;
+      gap: 12px;
+      margin-top: 25px;
+    }
+
+    .modal-buttons button {
+      padding: 12px 25px;
+      border-radius: 25px;
+      font-weight: 600;
+      cursor: pointer;
+      border: none;
+      transition: all 0.3s ease;
+    }
+
+    .btn-cancel {
+      background: #6c757d;
+      color: white;
+    }
+
+    .btn-cancel:hover {
+      background: #5a6268;
+      transform: translateY(-2px);
+    }
+
+    .btn-save {
+      background: linear-gradient(135deg, #56ab2f 0%, #a8e063 100%);
+      color: white;
+    }
+
+    .btn-save:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 5px 20px rgba(86, 171, 47, 0.4);
+    }
+
+    @media (max-width: 768px) {
+      h1 {
+        font-size: 2.5rem;
+      }
+
+      .search-controls {
+        flex-direction: column;
+      }
+
+      input[type="text"], button {
+        width: 100%;
+      }
+
+      .products-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .modal-content {
+        padding: 25px;
+        max-width: 95%;
+      }
+
+      .modal-buttons {
+        flex-direction: column;
+      }
+
+      .modal-buttons button {
+        width: 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <button class="logout-btn" onclick="logout()">🚪 Logout</button>
+      <h1>🛍️ Product Finder</h1>
+      <p class="subtitle">Search & Discover Amazing Products</p>
+    </header>
+
+    <div class="search-section">
+      <div class="search-controls">
+        <input 
+          type="text" 
+          id="productIdInput" 
+          placeholder="Enter Product ID (e.g., 1, 2, 3...)" 
+          onkeypress="handleEnter(event)"
+        />
+        <button class="btn-search" onclick="searchById()">🔍 Search by ID</button>
+        <button class="btn-all" onclick="viewAllProducts()">📋 View All Products</button>
+        <button class="btn-add" onclick="addProduct()">➕ Add Product</button>
+        <button class="btn-delete" onclick="deleteProductById()">🗑️ Delete Product</button>
+        <button class="btn-clear" onclick="clearResults()">✖️ Clear</button>
+      </div>
+    </div>
+
+    <div class="results-section">
+      <div id="resultsHeader" class="results-header" style="display: none;"></div>
+      <div id="productsContainer" class="products-grid"></div>
+    </div>
+  </div>
+
+  <!-- Product Modal -->
+  <div id="productModal" class="modal">
+    <div class="modal-content">
+      <h2 id="modalTitle">Add Product</h2>
+      <form id="modalForm">
+        <label>Product ID:</label>
+        <input type="text" id="modalProductId" required />
+
+        <label>Name:</label>
+        <input type="text" id="modalName" required />
+
+        <label>Category:</label>
+        <input type="text" id="modalCategory" required />
+
+        <label>Description:</label>
+        <textarea id="modalDescription" required></textarea>
+
+        <label>Price (USD):</label>
+        <input type="number" id="modalPrice" step="0.01" required />
+
+        <label>In Stock:</label>
+        <select id="modalInStock" required>
+          <option value="true">Yes</option>
+          <option value="false">No</option>
+        </select>
+
+        <div class="modal-buttons">
+          <button type="button" class="btn-cancel" onclick="closeModal()">Cancel</button>
+          <button type="submit" class="btn-save">Save</button>
+        </div>
+      </form>
+    </div>
+  </div>
+<script>
+const apiBase = "https://pttt4z9e4a.execute-api.us-west-2.amazonaws.com/prod";
+const jwt = localStorage.getItem("jwt");
+
+// Debug: Log JWT token info
+console.log("=== JWT Token Debug Info ===");
+console.log("JWT exists:", !!jwt);
+if (jwt) {
+  console.log("JWT length:", jwt.length);
+  console.log("JWT preview:", jwt.substring(0, 50) + "...");
+}
+console.log("API Base URL:", apiBase);
+console.log("==========================");
+
+// Redirect to login if JWT is missing
+if (!jwt) {
+  const domain = "https://us-west-2wkp7il04z.auth.us-west-2.amazoncognito.com";
+  const clientId = "4f5ptg37h0dp8343h98qn0039k";
+  const redirectUri = "https://product-bucket-10-1-26.s3.us-west-2.amazonaws.com/callback.html";
+  const scope = "email+openid+phone";
+  const loginUrl = `${domain}/login/continue?response_type=code&client_id=${clientId}&redirect_uri=${encodeURIComponent(redirectUri)}&scope=${scope}`;
+  window.location.href = loginUrl;
+}
+
+// -------------------------
+// Token Refresh Function
+// -------------------------
+async function refreshTokenIfNeeded() {
+  const refreshToken = localStorage.getItem("refresh_token");
+  const expiresAt = localStorage.getItem("token_expires_at");
+  
+  if (!refreshToken) {
+    console.warn("No refresh token available");
+    return false;
+  }
+  
+  // Check if token is expired or will expire in the next 5 minutes
+  const now = Date.now();
+  const fiveMinutes = 5 * 60 * 1000;
+  
+  if (expiresAt && (now >= expiresAt - fiveMinutes)) {
+    console.log("Token expired or expiring soon, refreshing...");
+    
+    try {
+      const response = await fetch(`${apiBase}/auth/refresh`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ refresh_token: refreshToken })
+      });
+      
+      if (!response.ok) {
+        console.error("Token refresh failed");
+        return false;
+      }
+      
+      const data = await response.json();
+      
+      // Update tokens in localStorage
+      localStorage.setItem("jwt", data.id_token);
+      localStorage.setItem("access_token", data.access_token);
+      
+      // Update expiration time
+      const expiresIn = data.expires_in || 3600;
+      const newExpiresAt = Date.now() + (expiresIn * 1000);
+      localStorage.setItem("token_expires_at", newExpiresAt);
+      
+      // Update the jwt variable
+      jwt = data.id_token;
+      
+      console.log("✅ Token refreshed successfully");
+      return true;
+    } catch (err) {
+      console.error("Error refreshing token:", err);
+      return false;
+    }
+  }
+  
+  return true; // Token is still valid
+}
+
+// -------------------------
+// Logout Function
+// -------------------------
+function logout() {
+  if (!confirm("Are you sure you want to logout?")) return;
+  
+  console.log("Logging out user...");
+  
+  // Clear all authentication data from localStorage
+  localStorage.removeItem("jwt");
+  localStorage.removeItem("access_token");
+  localStorage.removeItem("refresh_token");
+  localStorage.removeItem("token_expires_at");
+  
+  console.log("✅ All tokens cleared from localStorage");
+  
+  // Redirect to index.html (which will trigger Cognito redirect)
+  window.location.href = "/index.html";
+}
+
+// -------------------------    
+// Modal Management
+// -------------------------
+let currentEditId = null; // null = Add, not null = Update
+
+function openModal(product = null) {
+  const modal = document.getElementById("productModal");
+  modal.style.display = "flex";
+
+  if (product) {
+    document.getElementById("modalTitle").textContent = "Update Product";
+    currentEditId = product.product_id || product.id;
+    document.getElementById("modalProductId").value = product.product_id || product.id;
+    document.getElementById("modalProductId").disabled = true;
+    document.getElementById("modalName").value = product.name;
+    document.getElementById("modalCategory").value = product.category;
+    document.getElementById("modalPrice").value = product.price;
+    document.getElementById("modalDescription").value = product.description;
+    document.getElementById("modalInStock").value = product.in_stock ? "true" : "false";
+  } else {
+    document.getElementById("modalTitle").textContent = "Add Product";
+    currentEditId = null;
+    document.getElementById("modalProductId").disabled = false;
+    document.getElementById("modalForm").reset();
+  }
+}
+
+function closeModal() {
+  document.getElementById("productModal").style.display = "none";
+}
+
+// -------------------------
+// Handle Modal Form Submission
+// -------------------------
+document.getElementById("modalForm").onsubmit = async function(e) {
+  e.preventDefault();
+
+  const product_id = document.getElementById("modalProductId").value.trim();
+  const name = document.getElementById("modalName").value.trim();
+  const category = document.getElementById("modalCategory").value.trim();
+  const description = document.getElementById("modalDescription").value.trim();
+  const price = parseFloat(document.getElementById("modalPrice").value);
+  const in_stock = document.getElementById("modalInStock").value === "true";
+
+  if (!product_id || !name || !category || !description || isNaN(price)) {
+    return alert("⚠️ Please fill all fields correctly");
+  }
+
+  // Create payload in the exact required format
+  const payload = {
+    "product_id": product_id,
+    "name": name,
+    "category": category,
+    "description": description,
+    "price": price,
+    "currency": "USD",
+    "in_stock": in_stock
+  };
+
+  const method = currentEditId ? "PUT" : "POST";
+  const url = currentEditId ? `${apiBase}/products/${product_id}` : `${apiBase}/products`;
+
+  console.log("Submitting product:", method, url, payload);
+
+  try {
+    // Refresh token if needed before API call
+    await refreshTokenIfNeeded();
+    
+    const res = await fetch(url, {
+      method,
+      headers: { 
+        "Authorization": `Bearer ${jwt}`,
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify(payload)
+    });
+
+    console.log("Response status:", res.status);
+
+    if (!res.ok) {
+      const errorData = await res.json();
+      console.error("Error response:", errorData);
+      throw errorData;
+    }
+
+    const responseData = await res.json();
+    console.log("Success response:", responseData);
+
+    alert(`✅ Product ${currentEditId ? "updated" : "added"} successfully! Search by ID ${product_id} to verify.`);
+    closeModal();
+    clearResults();
+
+  } catch (err) {
+    console.error("Error saving product:", err);
+    alert("⚠️ " + (err.error || err.message || "Failed to save product. Check console for details."));
+  }
+};
+
+// -------------------------
+// Display Products Helper
+// -------------------------
+function displayProducts(productsToShow, headerText) {
+  const container = document.getElementById('productsContainer');
+  const header = document.getElementById('resultsHeader');
+  container.innerHTML = '';
+
+  if (!productsToShow || productsToShow.length === 0) {
+    header.style.display = 'none';
+    container.innerHTML = `
+      <div class="no-results">
+        <div>😕 No products found</div>
+        <div style="font-size: 1rem; margin-top: 10px; opacity: 0.8;">Try searching by product ID</div>
+      </div>
+    `;
+    return;
+  }
+
+  header.textContent = headerText;
+  header.style.display = 'block';
+
+  productsToShow.forEach(product => {
+    const stockClass = product.in_stock ? 'in-stock' : 'out-of-stock';
+    const stockText = product.in_stock ? 'In Stock' : 'Out of Stock';
+
+    const card = document.createElement('div');
+    card.className = 'product-card';
+    card.innerHTML = `
+      <span class="product-id">ID: ${product.product_id}</span>
+      <h3 class="product-name">${product.name}</h3>
+      <p class="product-category">📁 ${product.category}</p>
+      <div class="product-price">$${product.price.toFixed(2)} ${product.currency || 'USD'}</div>
+      <p class="product-description">${product.description}</p>
+      <span class="product-stock ${stockClass}">${stockText}</span>
+      <div style="margin-top: 15px; display: flex; gap: 10px; flex-wrap: wrap;">
+        <button onclick="updateProduct('${product.product_id}')" style="padding: 8px 15px; border-radius: 20px; background: #ffc107; color: #212529; font-weight: 600;">✏️ Update</button>
+        <button onclick="deleteProduct('${product.product_id}')" style="padding: 8px 15px; border-radius: 20px; background: #dc3545; color: white; font-weight: 600;">🗑️ Delete</button>
+      </div>
+    `;
+    container.appendChild(card);
+  });
+}
+
+// -------------------------
+// API Requests
+// -------------------------
+async function fetchProductById(id) {
+  try {
+    console.log("Fetching product ID:", id);
+    console.log("Using JWT:", jwt ? "Token exists" : "No token");
+    
+    // Refresh token if needed before API call
+    await refreshTokenIfNeeded();
+    
+    const res = await fetch(`${apiBase}/products/${id}`, {
+      method: 'GET',
+      headers: { "Authorization": `Bearer ${jwt}` }
+    });
+    
+    console.log("Response status:", res.status);
+    
+    if (!res.ok) {
+      const errorData = await res.json();
+      console.error("Error response:", errorData);
+      throw errorData;
+    }
+    
+    const data = await res.json();
+    console.log("Successfully fetched product:", data);
+    return data;
+  } catch (err) {
+    console.error("Error fetching product:", err);
+    alert("⚠️ " + (err.error || err.message || "Failed to fetch product. Check console for details."));
+    return null;
+  }
+}
+
+async function fetchAllProducts() {
+    console.log("🚨 fetchAllProducts called!");
+  try {
+    console.log("Fetching all products from:", `${apiBase}/products`);
+    console.log("Using JWT:", jwt ? "Token exists" : "No token");
+    
+    const res = await fetch(`${apiBase}/products`, {
+      method: 'GET',
+      headers: { "Authorization": `Bearer ${jwt}` }
+    });
+    
+    console.log("Response status:", res.status);
+    
+    if (!res.ok) {
+      const errorData = await res.json();
+      console.error("Error response:", errorData);
+      throw errorData;
+    }
+    
+    const data = await res.json();
+    console.log("Successfully fetched products:", data);
+    return data;
+  } catch (err) {
+    console.error("Error fetching all products:", err);
+    alert("⚠️ " + (err.error || err.message || "Failed to fetch all products. Check console for details."));
+    return [];
+  }
+}
+
+async function updateProduct(id) {
+  const product = await fetchProductById(id);
+  if (product) openModal(product);
+}
+
+async function deleteProduct(id) {
+  if (!confirm(`Are you sure you want to delete product ID ${id}?`)) return;
+
+  try {
+    // Refresh token if needed before API call
+    await refreshTokenIfNeeded();
+    
+    const res = await fetch(`${apiBase}/products/${id}`, {
+      method: 'DELETE',
+      headers: { "Authorization": `Bearer ${jwt}` }
+    });
+    if (!res.ok) throw await res.json();
+    alert("✅ Product deleted successfully");
+
+    // Remove from UI without fetching all products
+    const container = document.getElementById('productsContainer');
+    const card = Array.from(container.children)
+      .find(c => c.querySelector('.product-id').textContent.includes(id));
+    if (card) card.remove();
+
+  } catch (err) {
+    console.error("Error deleting product:", err);
+    alert("⚠️ " + (err.error || "Failed to delete product"));
+  }
+}
+
+// -------------------------
+// Search and Clear
+// -------------------------
+async function searchById() {
+  const input = document.getElementById('productIdInput');
+  const id = input.value.trim();
+  if (!id) return alert("⚠️ Please enter a product ID");
+
+  const product = await fetchProductById(id);
+  displayProducts(product ? [product] : [], `🔍 Search Result for ID: ${id}`);
+}
+
+async function viewAllProducts() {
+  document.getElementById('productIdInput').value = '';
+  
+  // Refresh token if needed before API call
+  await refreshTokenIfNeeded();
+  
+  const products = await fetchAllProducts();
+  displayProducts(products, `📋 All Products (${products.length} items)`);
+}
+
+async function deleteProductById() {
+  const id = prompt("Enter Product ID to delete:");
+  if (!id || isNaN(id)) return alert("⚠️ Invalid product ID");
+
+  if (!confirm(`Are you sure you want to delete product ID ${id}?`)) return;
+
+  try {
+    // Refresh token if needed before API call
+    await refreshTokenIfNeeded();
+    
+    const res = await fetch(`${apiBase}/products/${id}`, {
+      method: 'DELETE',
+      headers: { "Authorization": `Bearer ${jwt}` }
+    });
+    if (!res.ok) throw await res.json();
+    alert("✅ Product deleted successfully");
+    
+    // Clear the display after delete
+    clearResults();
+  } catch (err) {
+    console.error("Error deleting product:", err);
+    alert("⚠️ " + (err.error || "Failed to delete product"));
+  }
+}
+
+function clearResults() {
+  document.getElementById('productIdInput').value = '';
+  document.getElementById('productsContainer').innerHTML = '';
+  document.getElementById('resultsHeader').style.display = 'none';
+}
+
+function handleEnter(event) {
+  if (event.key === 'Enter') searchById();
+}
+
+// -------------------------
+// Add Product Button
+// -------------------------
+function addProduct() {
+  openModal();
+}
+</script>
+
+
+
+
+</body>
+</html>
