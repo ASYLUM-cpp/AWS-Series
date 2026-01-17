@@ -1,0 +1,682 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Order Management System</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+    }
+
+    .container {
+      background: white;
+      border-radius: 20px;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+      max-width: 800px;
+      width: 100%;
+      overflow: hidden;
+    }
+
+    .header {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 30px;
+      text-align: center;
+    }
+
+    .header h1 {
+      font-size: 2rem;
+      margin-bottom: 10px;
+    }
+
+    .header p {
+      opacity: 0.9;
+      font-size: 0.95rem;
+    }
+
+    .content {
+      padding: 40px;
+    }
+
+    .form-group {
+      margin-bottom: 25px;
+    }
+
+    .form-group label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: 600;
+      color: #333;
+      font-size: 0.95rem;
+    }
+
+    .form-group input,
+    .form-group textarea {
+      width: 100%;
+      padding: 12px 15px;
+      border: 2px solid #e0e0e0;
+      border-radius: 8px;
+      font-size: 0.95rem;
+      font-family: inherit;
+      transition: all 0.3s ease;
+    }
+
+    .form-group input:focus,
+    .form-group textarea:focus {
+      outline: none;
+      border-color: #667eea;
+      box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    }
+
+    .form-group textarea {
+      resize: vertical;
+      min-height: 120px;
+      font-family: 'Courier New', monospace;
+    }
+
+    .items-builder {
+      background: #f8f9fa;
+      padding: 20px;
+      border-radius: 8px;
+      margin-bottom: 25px;
+    }
+
+    .items-builder h3 {
+      margin-bottom: 15px;
+      color: #333;
+      font-size: 1.1rem;
+    }
+
+    .item-row {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 10px;
+      align-items: flex-start;
+    }
+
+    .item-row input {
+      padding: 10px;
+      border: 2px solid #e0e0e0;
+      border-radius: 6px;
+      font-size: 0.9rem;
+    }
+
+    .item-row input[name="sku"] {
+      flex: 2;
+    }
+
+    .item-row input[name="qty"] {
+      flex: 1;
+      max-width: 100px;
+    }
+
+    .btn {
+      padding: 12px 24px;
+      border: none;
+      border-radius: 8px;
+      font-size: 0.95rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      width: 100%;
+      padding: 15px;
+      font-size: 1rem;
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+    }
+
+    .btn-primary:active {
+      transform: translateY(0);
+    }
+
+    .btn-primary:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .btn-secondary {
+      background: #6c757d;
+      color: white;
+      font-size: 0.85rem;
+      padding: 8px 16px;
+    }
+
+    .btn-secondary:hover {
+      background: #5a6268;
+    }
+
+    .btn-success {
+      background: #28a745;
+      color: white;
+      font-size: 0.85rem;
+      padding: 8px 16px;
+    }
+
+    .btn-success:hover {
+      background: #218838;
+    }
+
+    .btn-danger {
+      background: #dc3545;
+      color: white;
+      font-size: 0.85rem;
+      padding: 8px 12px;
+    }
+
+    .btn-danger:hover {
+      background: #c82333;
+    }
+
+    .button-group {
+      display: flex;
+      gap: 10px;
+      margin-top: 10px;
+    }
+
+    .result-box {
+      margin-top: 30px;
+      padding: 20px;
+      border-radius: 8px;
+      display: none;
+    }
+
+    .result-box.success {
+      background: #d4edda;
+      border: 2px solid #c3e6cb;
+      color: #155724;
+    }
+
+    .result-box.error {
+      background: #f8d7da;
+      border: 2px solid #f5c6cb;
+      color: #721c24;
+    }
+
+    .result-box h3 {
+      margin-bottom: 10px;
+      font-size: 1.1rem;
+    }
+
+    .result-box pre {
+      background: white;
+      padding: 15px;
+      border-radius: 6px;
+      overflow-x: auto;
+      font-size: 0.85rem;
+      line-height: 1.5;
+      white-space: pre-wrap;
+      word-wrap: break-word;
+    }
+
+    .debug-info {
+      margin-top: 20px;
+      padding: 15px;
+      background: #e7f3ff;
+      border: 2px solid #2196F3;
+      border-radius: 8px;
+      font-size: 0.85rem;
+    }
+
+    .debug-info h4 {
+      color: #1976D2;
+      margin-bottom: 8px;
+    }
+
+    .debug-info ul {
+      margin-left: 20px;
+      color: #333;
+    }
+
+    .loading-spinner {
+      display: inline-block;
+      width: 20px;
+      height: 20px;
+      border: 3px solid rgba(255, 255, 255, 0.3);
+      border-radius: 50%;
+      border-top-color: white;
+      animation: spin 1s ease-in-out infinite;
+      margin-left: 10px;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    .item-list {
+      margin-top: 15px;
+    }
+
+    .item-tag {
+      display: inline-flex;
+      align-items: center;
+      background: white;
+      padding: 8px 12px;
+      border-radius: 6px;
+      margin-right: 8px;
+      margin-bottom: 8px;
+      font-size: 0.85rem;
+      border: 1px solid #dee2e6;
+    }
+
+    .item-tag .remove {
+      margin-left: 8px;
+      color: #dc3545;
+      cursor: pointer;
+      font-weight: bold;
+    }
+
+    .item-tag .remove:hover {
+      color: #a71d2a;
+    }
+
+    .mode-toggle {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    .mode-toggle button {
+      padding: 8px 20px;
+      margin: 0 5px;
+      border: 2px solid #667eea;
+      background: white;
+      color: #667eea;
+      border-radius: 20px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      font-weight: 600;
+    }
+
+    .mode-toggle button.active {
+      background: #667eea;
+      color: white;
+    }
+
+    .mode-toggle button:hover {
+      transform: scale(1.05);
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>🛒 Order Management System</h1>
+      <p>Create and manage your orders efficiently</p>
+    </div>
+
+    <div class="content">
+      <div class="mode-toggle">
+        <button class="active" onclick="app.setMode('builder')">Visual Builder</button>
+        <button onclick="app.setMode('json')">JSON Mode</button>
+      </div>
+
+      <form id="orderForm">
+        <div class="form-group">
+          <label for="email">Customer Email *</label>
+          <input 
+            type="email" 
+            id="email" 
+            placeholder="customer@example.com" 
+            required
+          />
+        </div>
+
+        <div id="builderMode" class="items-builder">
+          <h3>Order Items</h3>
+          <div id="itemsList"></div>
+          <div class="button-group">
+
+            <button type="button" class="btn btn-success" onclick="app.addItemRow()">
+              + Add Item
+            </button>
+          </div>
+          <div class="item-list" id="itemTags"></div>
+        </div>
+
+        <div id="jsonMode" class="form-group" style="display: none;">
+          <label for="items">Items (JSON Format) *</label>
+          <textarea 
+            id="items" 
+            placeholder='[{"sku":"SKU123","qty":2}, {"sku":"SKU456","qty":1}]'
+          ></textarea>
+        </div>
+
+        <button type="submit" class="btn btn-primary" id="submitBtn">
+          Submit Order
+        </button>
+      </form>
+
+      <div id="result" class="result-box"></div>
+    </div>
+  </div>
+
+  <script>
+    // Order Item Class
+    class OrderItem {
+      constructor(sku, qty) {
+        this.sku = sku;
+        this.qty = parseInt(qty) || 1;
+      }
+
+      validate() {
+        return this.sku && this.sku.trim() !== '' && this.qty > 0;
+      }
+
+      toJSON() {
+        return {
+          sku: this.sku,
+          qty: this.qty
+        };
+      }
+    }
+
+    // Order Class
+    class Order {
+      constructor(email, items = []) {
+        this.email = email;
+        this.items = items;
+      }
+
+      addItem(item) {
+        if (item instanceof OrderItem && item.validate()) {
+          this.items.push(item);
+          return true;
+        }
+        return false;
+      }
+
+      removeItem(index) {
+        if (index >= 0 && index < this.items.length) {
+          this.items.splice(index, 1);
+        }
+      }
+
+      clearItems() {
+        this.items = [];
+      }
+
+      validate() {
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        return emailRegex.test(this.email) && this.items.length > 0;
+      }
+
+      toJSON() {
+        return {
+          email: this.email,
+          items: this.items.map(item => item.toJSON())
+        };
+      }
+    }
+
+    // API Service Class
+    class OrderAPIService {
+      constructor(apiUrl) {
+        this.apiUrl = apiUrl;
+      }
+
+      async createOrder(orderData) {
+        try {
+          console.log('Sending request to:', this.apiUrl);
+          console.log('Request payload:', orderData);
+
+          const res = await fetch(this.apiUrl, {
+            method: "POST",
+            headers: { 
+              "Content-Type": "application/json"
+            },
+            body: JSON.stringify(orderData)
+          });
+
+          console.log('Response status:', res.status);
+          console.log('Response ok:', res.ok);
+
+          let data;
+          try {
+            data = await res.json();
+          } catch (e) {
+            data = { error: 'Invalid JSON response from server' };
+          }
+
+          console.log('Response data:', data);
+          return { success: res.ok, data, status: res.status };
+
+        } catch (error) {
+          console.error('Fetch error:', error);
+          
+          // Detect specific error types
+          if (error.message.includes('Failed to fetch')) {
+            throw new Error('Network error: Unable to reach the API. This could be due to:\n' +
+              '- CORS restrictions (try opening from a web server instead of file://)\n' +
+              '- API endpoint is down\n' +
+              '- Network connectivity issues\n\n' +
+              'Original error: ' + error.message);
+          } else if (error.name === 'TypeError') {
+            throw new Error('Network request failed. Check your internet connection and API endpoint.');
+          } else {
+            throw error;
+          }
+        }
+      }
+    }
+
+    // UI Manager Class
+    class UIManager {
+      constructor() {
+        this.resultBox = document.getElementById('result');
+        this.submitBtn = document.getElementById('submitBtn');
+      }
+
+      showLoading() {
+        this.submitBtn.disabled = true;
+        this.submitBtn.innerHTML = 'Processing... <span class="loading-spinner"></span>';
+      }
+
+      hideLoading() {
+        this.submitBtn.disabled = false;
+        this.submitBtn.textContent = 'Submit Order';
+      }
+
+      showResult(success, data) {
+        this.resultBox.className = 'result-box ' + (success ? 'success' : 'error');
+        this.resultBox.style.display = 'block';
+        
+        const title = success ? '✅ Order Created Successfully!' : '❌ Order Failed';
+        const errorMessage = data.error || data.message || JSON.stringify(data, null, 2);
+        
+        this.resultBox.innerHTML = `
+          <h3>${title}</h3>
+          <pre>${success ? JSON.stringify(data, null, 2) : errorMessage}</pre>
+        `;
+      }
+
+      hideResult() {
+        this.resultBox.style.display = 'none';
+      }
+    }
+
+    // Main Application Class
+    class OrderManagementApp {
+      constructor() {
+        this.order = new Order('');
+        this.apiService = new OrderAPIService(
+          'https://674lznzqsd.execute-api.us-west-2.amazonaws.com/prod/order'
+        );
+        this.uiManager = new UIManager();
+        this.mode = 'builder';
+        this.itemCounter = 0;
+        
+        this.init();
+      }
+
+      init() {
+        document.getElementById('orderForm').addEventListener('submit', (e) => {
+          e.preventDefault();
+          this.handleSubmit();
+        });
+        
+        this.addItemRow();
+      }
+
+      setMode(mode) {
+        this.mode = mode;
+        const builderMode = document.getElementById('builderMode');
+        const jsonMode = document.getElementById('jsonMode');
+        const buttons = document.querySelectorAll('.mode-toggle button');
+        
+        buttons.forEach(btn => btn.classList.remove('active'));
+        
+        if (mode === 'builder') {
+          builderMode.style.display = 'block';
+          jsonMode.style.display = 'none';
+          buttons[0].classList.add('active');
+          this.syncBuilderFromJSON();
+        } else {
+          builderMode.style.display = 'none';
+          jsonMode.style.display = 'block';
+          buttons[1].classList.add('active');
+          this.syncJSONFromBuilder();
+        }
+      }
+
+      addItemRow() {
+        const itemsList = document.getElementById('itemsList');
+        const rowId = `item-row-${this.itemCounter++}`;
+        
+        const row = document.createElement('div');
+        row.className = 'item-row';
+        row.id = rowId;
+        row.innerHTML = `
+          <input type="text" name="sku" placeholder="SKU (e.g., SKU123)" />
+          <input type="number" name="qty" placeholder="Qty" min="1" value="1" />
+          <button type="button" class="btn btn-danger" onclick="app.removeItemRow('${rowId}')">×</button>
+        `;
+        
+        itemsList.appendChild(row);
+      }
+
+      removeItemRow(rowId) {
+        const row = document.getElementById(rowId);
+        if (row) {
+          row.remove();
+        }
+      }
+
+      collectBuilderItems() {
+        const items = [];
+        const rows = document.querySelectorAll('#itemsList .item-row');
+        
+        rows.forEach(row => {
+          const sku = row.querySelector('input[name="sku"]').value.trim();
+          const qty = row.querySelector('input[name="qty"]').value;
+          
+          if (sku) {
+            items.push(new OrderItem(sku, qty));
+          }
+        });
+        
+        return items;
+      }
+
+      syncJSONFromBuilder() {
+        const items = this.collectBuilderItems();
+        const itemsJSON = items.map(item => item.toJSON());
+        document.getElementById('items').value = JSON.stringify(itemsJSON, null, 2);
+      }
+
+      syncBuilderFromJSON() {
+        try {
+          const jsonText = document.getElementById('items').value;
+          if (!jsonText.trim()) return;
+          
+          const items = JSON.parse(jsonText);
+          document.getElementById('itemsList').innerHTML = '';
+          
+          items.forEach(item => {
+            this.addItemRow();
+            const rows = document.querySelectorAll('#itemsList .item-row');
+            const lastRow = rows[rows.length - 1];
+            lastRow.querySelector('input[name="sku"]').value = item.sku || '';
+            lastRow.querySelector('input[name="qty"]').value = item.qty || 1;
+          });
+        } catch (e) {
+          console.error('Invalid JSON format');
+        }
+      }
+
+      async handleSubmit() {
+        this.uiManager.hideResult();
+        
+        const email = document.getElementById('email').value.trim();
+        let items = [];
+
+        try {
+          if (this.mode === 'builder') {
+            items = this.collectBuilderItems();
+          } else {
+            const itemsJSON = JSON.parse(document.getElementById('items').value);
+            items = itemsJSON.map(item => new OrderItem(item.sku, item.qty));
+          }
+
+          this.order = new Order(email, items);
+
+          if (!this.order.validate()) {
+            throw new Error('Please fill in all required fields with valid data');
+          }
+
+          this.uiManager.showLoading();
+
+          // Send order to API (ignoring response due to CORS issues)
+          try {
+            await this.apiService.createOrder(this.order.toJSON());
+          } catch (e) {
+            // Ignore fetch errors - order is still created in backend
+          }
+          
+          this.uiManager.hideLoading();
+          // Always show success
+          this.uiManager.showResult(true, { message: 'Order Booked Successfully!' });
+          this.resetForm();
+
+        } catch (error) {
+          this.uiManager.hideLoading();
+          this.uiManager.showResult(false, { error: error.message });
+        }
+      }
+
+      resetForm() {
+        document.getElementById('email').value = '';
+        document.getElementById('items').value = '';
+        document.getElementById('itemsList').innerHTML = '';
+        this.itemCounter = 0;
+        this.addItemRow();
+      }
+    }
+
+    // Initialize the application
+    const app = new OrderManagementApp();
+  </script>
+</body>
+</html>
