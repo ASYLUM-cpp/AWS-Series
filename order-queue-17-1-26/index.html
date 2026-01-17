@@ -522,7 +522,7 @@
       constructor() {
         this.order = new Order('');
         this.apiService = new OrderAPIService(
-          'https://674lznzqsd.execute-api.us-west-2.amazonaws.com/prod/order'
+          'LAMBDA_API_TRIGGER_URL_HERE'
         );
         this.uiManager = new UIManager();
         this.mode = 'builder';
@@ -680,3 +680,4 @@
   </script>
 </body>
 </html>
+
