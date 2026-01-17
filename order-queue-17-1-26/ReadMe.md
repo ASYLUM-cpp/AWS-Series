@@ -6,21 +6,7 @@ This project demonstrates a **scalable, decoupled order processing system** buil
 
 ## Architecture Overview
 
-Frontend API
-|
-v
-Ingest Lambda (validates & sends to SQS)
-|
-v
-SQS Queue (buffer)
-|
-v
-Worker Lambda (processes orders)
-|
-v
-DynamoDB (stores processed orders)
-
-
+Frontend API - > Ingest Lambda (validates & sends to SQS) - > SQS Queue (buffer) - > Worker Lambda (processes orders) - > DynamoDB (stores processed orders)
 
 ### Components
 
