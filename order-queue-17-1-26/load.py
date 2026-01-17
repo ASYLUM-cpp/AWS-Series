@@ -4,7 +4,7 @@ import random
 import string
 import time
 
-API_URL = "https://674lznzqsd.execute-api.us-west-2.amazonaws.com/prod/order"
+API_URL = "LAMBDA_TRIGGER_API_URL_HERE"
 
 TOTAL_REQUESTS = 500
 BATCH_SIZE = 50
@@ -77,3 +77,4 @@ async def main():
 
 if __name__ == "__main__":
     asyncio.run(main())
+
