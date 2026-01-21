@@ -1,0 +1,1078 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Order Processing System</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family:
+          -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu,
+          Cantarell, sans-serif;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        min-height: 100vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        padding: 20px;
+      }
+
+      .container {
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+        padding: 40px;
+        max-width: 500px;
+        width: 100%;
+      }
+
+      h1 {
+        color: #333;
+        margin-bottom: 30px;
+        font-size: 28px;
+        text-align: center;
+      }
+
+      .form-group {
+        margin-bottom: 20px;
+      }
+
+      label {
+        display: block;
+        margin-bottom: 8px;
+        color: #555;
+        font-weight: 500;
+        font-size: 14px;
+      }
+
+      input {
+        width: 100%;
+        padding: 12px 16px;
+        border: 2px solid #e0e0e0;
+        border-radius: 8px;
+        font-size: 16px;
+        transition: border-color 0.3s;
+      }
+
+      input:focus {
+        outline: none;
+        border-color: #667eea;
+      }
+
+      button {
+        width: 100%;
+        padding: 14px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border: none;
+        border-radius: 8px;
+        font-size: 16px;
+        font-weight: 600;
+        cursor: pointer;
+        transition:
+          transform 0.2s,
+          box-shadow 0.2s;
+        margin-top: 10px;
+      }
+
+      button:hover:not(:disabled) {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+      }
+
+      button:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+      }
+
+      .status-section {
+        margin-top: 30px;
+        padding: 20px;
+        background: #f8f9fa;
+        border-radius: 8px;
+        display: none;
+      }
+
+      .status-section.show {
+        display: block;
+      }
+
+      .status-item {
+        padding: 10px 0;
+        color: #555;
+        font-size: 14px;
+        display: flex;
+        align-items: center;
+      }
+
+      .status-item.submitted {
+        color: #2196f3;
+      }
+
+      .status-item.processing {
+        color: #ff9800;
+      }
+
+      .status-item.success {
+        color: #4caf50;
+        font-weight: 600;
+      }
+
+      .status-item.refunded {
+        color: #f44336;
+        font-weight: 600;
+      }
+
+      .status-item.error {
+        color: #f44336;
+        font-weight: 600;
+      }
+
+      .status-icon {
+        margin-right: 10px;
+        font-size: 18px;
+      }
+
+      .loading-spinner {
+        display: inline-block;
+        width: 16px;
+        height: 16px;
+        border: 3px solid #f3f3f3;
+        border-top: 3px solid #ff9800;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+        margin-right: 10px;
+      }
+
+      @keyframes spin {
+        0% {
+          transform: rotate(0deg);
+        }
+        100% {
+          transform: rotate(360deg);
+        }
+      }
+
+      .error-message {
+        background: #ffebee;
+        color: #c62828;
+        padding: 12px;
+        border-radius: 6px;
+        margin-top: 10px;
+        font-size: 14px;
+      }
+
+      textarea {
+        width: 100%;
+        padding: 12px 16px;
+        border: 2px solid #e0e0e0;
+        border-radius: 8px;
+        font-size: 14px;
+        font-family: 'Courier New', monospace;
+        transition: border-color 0.3s;
+        resize: vertical;
+        min-height: 100px;
+      }
+
+      textarea:focus {
+        outline: none;
+        border-color: #667eea;
+      }
+
+      .json-viewer {
+        margin-top: 20px;
+        padding: 15px;
+        background: #f8f9fa;
+        border-radius: 8px;
+        border: 1px solid #e0e0e0;
+      }
+
+      .json-viewer h3 {
+        color: #555;
+        font-size: 14px;
+        margin-bottom: 10px;
+        font-weight: 600;
+      }
+
+      .json-viewer pre {
+        background: #2d2d2d;
+        color: #f8f8f2;
+        padding: 15px;
+        border-radius: 6px;
+        overflow-x: auto;
+        font-size: 13px;
+        line-height: 1.5;
+        margin: 0;
+      }
+
+      .button-group {
+        display: flex;
+        gap: 10px;
+      }
+
+      .button-group button {
+        flex: 1;
+      }
+
+      .secondary-btn {
+        background: linear-gradient(135deg, #6c757d 0%, #495057 100%) !important;
+      }
+
+      .secondary-btn:hover:not(:disabled) {
+        box-shadow: 0 5px 20px rgba(108, 117, 125, 0.4) !important;
+      }
+
+      .websocket-status {
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        padding: 8px 16px;
+        border-radius: 20px;
+        font-size: 12px;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        background: white;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      }
+
+      .websocket-status .indicator {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: #ccc;
+      }
+
+      .websocket-status.connected .indicator {
+        background: #4caf50;
+        animation: pulse 2s ease-in-out infinite;
+      }
+
+      .websocket-status.disconnected .indicator {
+        background: #f44336;
+      }
+
+      @keyframes pulse {
+        0%, 100% {
+          opacity: 1;
+        }
+        50% {
+          opacity: 0.5;
+        }
+      }
+
+      .live-update {
+        background: #e3f2fd;
+        border-left: 4px solid #2196f3;
+        padding: 12px;
+        margin-top: 10px;
+        border-radius: 4px;
+        font-size: 13px;
+        color: #333;
+      }
+
+      .live-update strong {
+        color: #1976d2;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- WebSocket Connection Status -->
+    <div id="wsStatus" class="websocket-status disconnected">
+      <div class="indicator"></div>
+      <span id="wsStatusText">Disconnected</span>
+    </div>
+
+    <div class="container">
+      <h1>🛒 Place Order</h1>
+
+      <!-- Order Form -->
+      <form id="orderForm">
+        <div class="form-group">
+          <label for="orderId">Order ID</label>
+          <input
+            type="text"
+            id="orderId"
+            name="orderId"
+            placeholder="e.g., order-001"
+            required
+          />
+        </div>
+
+        <div class="form-group">
+          <label for="connectionId">Connection ID</label>
+          <div style="display: flex; gap: 8px;">
+            <input
+              type="text"
+              id="connectionId"
+              name="connectionId"
+              placeholder="Auto-filled from WebSocket or enter manually"
+              style="flex: 1;"
+            />
+            <button type="button" id="generateConnIdBtn" style="width: auto; padding: 12px 16px; margin-top: 0;">Generate</button>
+          </div>
+          <small id="connIdStatus" style="color: #666; font-size: 12px; display: block; margin-top: 4px;">⚠️ WebSocket disconnected - enter manually or click Generate</small>
+        </div>
+
+        <div class="form-group">
+          <label for="sku">Product SKU</label>
+          <input
+            type="text"
+            id="sku"
+            name="sku"
+            placeholder="e.g., product-123"
+            required
+          />
+        </div>
+
+        <div class="form-group">
+          <label for="amount">Amount ($)</label>
+          <input
+            type="number"
+            id="amount"
+            name="amount"
+            placeholder="e.g., 50"
+            min="0"
+            step="0.01"
+            required
+          />
+        </div>
+
+        <div class="form-group">
+          <label for="available">Available Quantity</label>
+          <input
+            type="number"
+            id="available"
+            name="available"
+            placeholder="e.g., 2"
+            min="0"
+            step="1"
+            required
+          />
+        </div>
+
+        <div class="form-group">
+          <label for="reserved">Reserved Quantity</label>
+          <input
+            type="number"
+            id="reserved"
+            name="reserved"
+            placeholder="e.g., 0"
+            min="0"
+            step="1"
+            value="0"
+            required
+          />
+        </div>
+
+        <div class="form-group">
+          <label for="jsonInput">Or Enter JSON Directly (Optional)</label>
+          <textarea
+            id="jsonInput"
+            name="jsonInput"
+            placeholder='{
+  "orderId": "order-001",
+  "connectionId": "auto-filled-or-paste-here",
+  "sku": "product-456",
+  "amount": 50,
+  "available": 10,
+  "reserved": 1
+}'
+          ></textarea>
+        </div>
+
+        <div class="button-group">
+          <button type="submit" id="submitBtn">Submit Order</button>
+          <button type="button" id="putBtn" class="secondary-btn">Put Object</button>
+        </div>
+      </form>
+
+      <!-- JSON Viewer Section -->
+      <div id="jsonViewer" class="json-viewer" style="display: none;">
+        <h3>📤 Request Payload (JSON Format)</h3>
+        <pre id="jsonDisplay"></pre>
+      </div>
+
+      <!-- Orders Tracking Section -->
+      <div id="ordersSection" class="json-viewer" style="display: none; margin-top: 20px;">
+        <h3>📦 Order Tracking</h3>
+        <div id="ordersList" style="background: white; padding: 10px; border-radius: 6px;"></div>
+      </div>
+
+      <!-- Status Display Section -->
+      <div id="statusSection" class="status-section">
+        <div
+          id="submittedStatus"
+          class="status-item submitted"
+          style="display: none"
+        >
+          <span class="status-icon">✓</span>
+          <span>Order submitted</span>
+        </div>
+
+        <div
+          id="processingStatus"
+          class="status-item processing"
+          style="display: none"
+        >
+          <span class="loading-spinner"></span>
+          <span>Processing...</span>
+        </div>
+
+        <div id="resultStatus" class="status-item" style="display: none">
+          <span class="status-icon"></span>
+          <span id="resultText"></span>
+        </div>
+
+        <div
+          id="errorMessage"
+          class="error-message"
+          style="display: none"
+        ></div>
+
+        <div id="liveUpdates"></div>
+      </div>
+    </div>
+
+    <script>
+      // API Gateway endpoint - Replace with your actual endpoint
+      const API_ENDPOINT =
+        "https://w8ecrh8am1.execute-api.us-west-2.amazonaws.com/prod/order";
+
+      // Get DOM elements
+      const orderForm = document.getElementById("orderForm");
+      const submitBtn = document.getElementById("submitBtn");
+      const putBtn = document.getElementById("putBtn");
+      const statusSection = document.getElementById("statusSection");
+      const submittedStatus = document.getElementById("submittedStatus");
+      const processingStatus = document.getElementById("processingStatus");
+      const resultStatus = document.getElementById("resultStatus");
+      const resultText = document.getElementById("resultText");
+      const errorMessage = document.getElementById("errorMessage");
+      const jsonViewer = document.getElementById("jsonViewer");
+      const jsonDisplay = document.getElementById("jsonDisplay");
+      const wsStatus = document.getElementById("wsStatus");
+      const wsStatusText = document.getElementById("wsStatusText");
+      const liveUpdates = document.getElementById("liveUpdates");
+      const ordersSection = document.getElementById("ordersSection");
+      const ordersList = document.getElementById("ordersList");
+      const connectionIdInput = document.getElementById("connectionId");
+      const connIdStatus = document.getElementById("connIdStatus");
+      const generateConnIdBtn = document.getElementById("generateConnIdBtn");
+      
+      // Store WebSocket connectionId
+      let wsConnectionId = null;
+
+      // Generate a mock connectionId for testing when WebSocket is unavailable
+      generateConnIdBtn.addEventListener("click", () => {
+        const mockId = "mock-" + Date.now() + "-" + Math.random().toString(36).substr(2, 9);
+        connectionIdInput.value = mockId;
+        wsConnectionId = mockId;
+        connectionIdInput.style.borderColor = "#ff9800";
+        connectionIdInput.style.backgroundColor = "#fff3e0";
+        connIdStatus.textContent = "⚠️ Using generated connectionId (for testing only)";
+        connIdStatus.style.color = "#ff9800";
+        console.log("⚠️ Generated mock connectionId for testing:", mockId);
+        console.log("🚨 Note: Backend may not accept mock connectionIds. Fix WebSocket connection for production.");
+      });
+
+      // WebSocket connection for live updates
+      console.log("🔌 Initializing WebSocket connection...");
+      console.log("WebSocket URL: wss://xhbwumoqu7.execute-api.us-west-2.amazonaws.com/production/");
+      const socket = new WebSocket("wss://xhbwumoqu7.execute-api.us-west-2.amazonaws.com/production/");
+
+      socket.onopen = (event) => {
+        console.log("✅ WebSocket connection OPENED successfully!");
+        console.log("Connection event:", event);
+        console.log("Ready state:", socket.readyState, "(1 = OPEN)");
+        console.log("Protocol:", socket.protocol || "None");
+        console.log("Extensions:", socket.extensions || "None");
+        console.log("");
+        console.log("✅ Frontend is NOW READY to receive messages");
+        console.log("");
+        console.log("📤 Sending REGISTER message to backend...");
+        
+        // Send REGISTER message to $default route to get connectionId
+        const registerMessage = JSON.stringify({
+          action: "REGISTER",
+          type: "REGISTER"
+        });
+        
+        socket.send(registerMessage);
+        console.log("✅ REGISTER message sent:", registerMessage);
+        console.log("⏳ Waiting for connectionId response from $default route...");
+        console.log("");
+        
+        wsStatus.className = "websocket-status connected";
+        wsStatusText.textContent = "Connected - Registering...";
+        connIdStatus.textContent = "⏳ Sent REGISTER message - waiting for connectionId response...";
+        connIdStatus.style.color = "#2196f3";
+      };
+
+      socket.onmessage = (event) => {
+        console.log("");
+        console.log("📨 ========== WebSocket Message Received ==========");
+        console.log("Raw event data:", event.data);
+        console.log("Timestamp:", new Date().toISOString());
+        
+        let msg;
+        try {
+          msg = JSON.parse(event.data);
+          console.log("✅ Successfully parsed JSON message");
+          console.log("Parsed message:", msg);
+          console.log("Message keys:", Object.keys(msg));
+          console.log("Message type:", msg.type || "(no type specified)");
+        } catch (error) {
+          console.error("❌ Failed to parse message as JSON:", error);
+          console.log("Unparsed data:", event.data);
+          return;
+        }
+        
+        // Handle REGISTER_RESPONSE or CONNECTION_ESTABLISHED message with connectionId
+        if (msg.type === "REGISTER_RESPONSE" || msg.type === "CONNECTION_ESTABLISHED" || msg.connectionId) {
+          console.log("");
+          console.log("🎉 ConnectionId response detected!");
+          console.log("Message type:", msg.type);
+          
+          if (msg.connectionId) {
+            console.log("✅ Connection ID found:", msg.connectionId);
+            wsConnectionId = msg.connectionId;
+            connectionIdInput.value = msg.connectionId;
+            connectionIdInput.style.borderColor = "#4caf50";
+            connectionIdInput.style.backgroundColor = "#f1f8f4";
+            connIdStatus.textContent = "✓ ConnectionId received: " + msg.connectionId.substring(0, 20) + "...";
+            connIdStatus.style.color = "#4caf50";
+            wsStatusText.textContent = "Live Updates Active";
+            console.log("💾 Stored connectionId:", wsConnectionId);
+            console.log("✅ Frontend is now fully registered and ready!");
+            console.log("✅ You can now submit orders with this connectionId");
+          } else {
+            console.warn("⚠️ Response message received but no connectionId field!");
+            console.warn("Full message:", JSON.stringify(msg, null, 2));
+          }
+          console.log("");
+        } else {
+          console.log("💬 Regular message (not registration response)");
+        }
+        
+        // Extract orderId and status from message
+        const { orderId, status } = msg;
+        
+        if (orderId) {
+          console.log("📦 Order ID in message:", orderId);
+        }
+        if (status) {
+          console.log("📊 Status in message:", status);
+        }
+        
+        // Update specific order element if orderId exists
+        if (orderId) {
+          const orderElement = document.getElementById(`order-${orderId}`);
+          if (orderElement) {
+            console.log(`✏️ Updating UI element for order-${orderId}`);
+            orderElement.innerText = status || 'Processing';
+          } else {
+            console.log(`ℹ️ No existing element found for order-${orderId}, will create new entry`);
+          }
+        }
+        
+        // Update the UI with order status (skip for registration responses)
+        if (msg.type !== "REGISTER_RESPONSE" && msg.type !== "CONNECTION_ESTABLISHED") {
+          handleLiveUpdate(msg);
+          console.log("✅ Message processed successfully");
+        }
+        
+        console.log("=================================================");
+        console.log("");
+      };
+
+      socket.onerror = (error) => {
+        console.error("");
+        console.error("❌ ========================================");
+        console.error("❌ WebSocket Connection FAILED");
+        console.error("❌ ========================================");
+        console.error("Error event:", error);
+        console.error("Ready state:", socket.readyState, "(3 = CLOSED)");
+        console.error("URL:", socket.url);
+        console.error("");
+        console.error("🔍 TROUBLESHOOTING STEPS:");
+        console.error("");
+        console.error("1️⃣ VERIFY API Gateway WebSocket API:");
+        console.error("   - Go to AWS Console > API Gateway");
+        console.error("   - Find your WebSocket API");
+        console.error("   - Check if it's DEPLOYED to 'production' stage");
+        console.error("   - Copy the WebSocket URL from the stage (should match URL above)");
+        console.error("");
+        console.error("2️⃣ CHECK $connect ROUTE:");
+        console.error("   - Go to Routes section in API Gateway");
+        console.error("   - Verify $connect route exists");
+        console.error("   - Verify Lambda function is attached");
+        console.error("   - Check Lambda has correct permissions");
+        console.error("");
+        console.error("3️⃣ VERIFY Lambda PERMISSIONS:");
+        console.error("   - Lambda needs AWSLambdaBasicExecutionRole");
+        console.error("   - Lambda needs DynamoDB PutItem permission");
+        console.error("   - Lambda needs execute-api:ManageConnections permission");
+        console.error("");
+        console.error("4️⃣ CHECK CloudWatch Logs:");
+        console.error("   - Go to CloudWatch > Log Groups");
+        console.error("   - Find /aws/lambda/[your-connect-lambda-name]");
+        console.error("   - Look for errors during connection attempt");
+        console.error("");
+        console.error("5️⃣ VERIFY Environment Variables in Lambda:");
+        console.error("   - WS_ENDPOINT should be set (e.g., xhbwumoqu7.execute-api.us-west-2.amazonaws.com/production)");
+        console.error("   - CONNECTIONS_TABLE should be set");
+        console.error("");
+        console.error("⚠️ WORKAROUND FOR TESTING:");
+        console.error("   Click the 'Generate' button next to Connection ID field");
+        console.error("   This creates a mock ID so you can test the rest of the flow");
+        console.error("");
+        console.error("❌ ========================================");
+        console.error("");
+        
+        wsStatus.className = "websocket-status disconnected";
+        wsStatusText.textContent = "Connection Failed";
+        connIdStatus.innerHTML = '❌ WebSocket failed to connect - <strong>Click Generate button</strong> or check console for details';
+        connIdStatus.style.color = "#f44336";
+      };
+
+      socket.onclose = (event) => {
+        console.log("");
+        console.log("🔌 WebSocket connection closed");
+        console.log("Close event:", event);
+        console.log("Close code:", event.code);
+        console.log("Close reason:", event.reason || "No reason provided");
+        console.log("Was clean close:", event.wasClean);
+        console.log("Ready state:", socket.readyState);
+        
+        // Log common close codes
+        const closeCodes = {
+          1000: "Normal Closure",
+          1001: "Going Away",
+          1002: "Protocol Error",
+          1003: "Unsupported Data",
+          1006: "Abnormal Closure (connection failed or Lambda error)",
+          1007: "Invalid Frame Payload Data",
+          1008: "Policy Violation",
+          1009: "Message Too Big",
+          1011: "Internal Server Error"
+        };
+        console.log("Close code meaning:", closeCodes[event.code] || "Unknown code");
+        
+        if (event.code === 1006) {
+          console.log("");
+          console.log("⚠️ Code 1006 means:");
+          console.log("   - WebSocket API is not reachable (wrong URL or not deployed)");
+          console.log("   - OR $connect Lambda failed/crashed");
+          console.log("   - OR network/firewall issue");
+          console.log("   ➡️ Check the troubleshooting steps logged above");
+          console.log("");
+        }
+        
+        wsStatus.className = "websocket-status disconnected";
+        wsStatusText.textContent = "Disconnected";
+        
+        if (!wsConnectionId) {
+          connIdStatus.innerHTML = '⚠️ Disconnected - <strong>Click Generate button</strong> to test without WebSocket';
+          connIdStatus.style.color = "#ff9800";
+        }
+      };
+
+      /**
+       * Handle live updates from WebSocket
+       */
+      function handleLiveUpdate(msg) {
+        // Show status section if not already visible
+        statusSection.classList.add("show");
+
+        // If message contains orderId, add/update it in orders list
+        if (msg.orderId) {
+          addOrUpdateOrder(msg.orderId, msg.status || 'Processing');
+        }
+
+        // Create live update element
+        const updateDiv = document.createElement("div");
+        updateDiv.className = "live-update";
+        
+        // Format the message
+        let updateText = "";
+        if (msg.status) {
+          updateText = `<strong>Status Update:</strong> ${msg.status}`;
+          
+          // Update the main status display based on the message
+          if (msg.status.toLowerCase().includes("success") || msg.status.toLowerCase().includes("complete")) {
+            showResult("success", msg.message || msg.status);
+          } else if (msg.status.toLowerCase().includes("refund")) {
+            showResult("refunded", msg.message || msg.status);
+          } else if (msg.status.toLowerCase().includes("processing")) {
+            processingStatus.style.display = "flex";
+          } else if (msg.status.toLowerCase().includes("error") || msg.status.toLowerCase().includes("fail")) {
+            showResult("error", msg.message || msg.status);
+          }
+        } else if (msg.message) {
+          updateText = `<strong>Update:</strong> ${msg.message}`;
+        } else {
+          updateText = `<strong>Update:</strong> ${JSON.stringify(msg)}`;
+        }
+        
+        updateDiv.innerHTML = updateText;
+        
+        // Add timestamp
+        const timestamp = new Date().toLocaleTimeString();
+        updateDiv.innerHTML += ` <small style="color: #666; margin-left: 10px;">${timestamp}</small>`;
+        
+        // Prepend to live updates (newest first)
+        liveUpdates.insertBefore(updateDiv, liveUpdates.firstChild);
+        
+        // Keep only last 5 updates
+        while (liveUpdates.children.length > 5) {
+          liveUpdates.removeChild(liveUpdates.lastChild);
+        }
+      }
+
+      /**
+       * Add or update an order in the tracking list
+       */
+      function addOrUpdateOrder(orderId, status) {
+        // Show orders section
+        ordersSection.style.display = "block";
+        
+        // Check if order element already exists
+        let orderElement = document.getElementById(`order-${orderId}`);
+        
+        if (orderElement) {
+          // Update existing order status
+          orderElement.innerText = status;
+        } else {
+          // Create new order entry
+          const orderRow = document.createElement("div");
+          orderRow.style.cssText = "display: flex; justify-content: space-between; padding: 8px; border-bottom: 1px solid #e0e0e0;";
+          
+          const orderIdSpan = document.createElement("span");
+          orderIdSpan.textContent = orderId;
+          orderIdSpan.style.fontWeight = "600";
+          
+          const orderStatusSpan = document.createElement("span");
+          orderStatusSpan.id = `order-${orderId}`;
+          orderStatusSpan.innerText = status;
+          orderStatusSpan.style.cssText = "color: #ff9800; font-weight: 500;";
+          
+          orderRow.appendChild(orderIdSpan);
+          orderRow.appendChild(orderStatusSpan);
+          ordersList.appendChild(orderRow);
+        }
+        
+        // Update status color based on status
+        const statusElement = document.getElementById(`order-${orderId}`);
+        if (status && statusElement) {
+          if (status.toLowerCase().includes("success") || status.toLowerCase().includes("complete")) {
+            statusElement.style.color = "#4caf50";
+          } else if (status.toLowerCase().includes("refund")) {
+            statusElement.style.color = "#f44336";
+          } else if (status.toLowerCase().includes("error") || status.toLowerCase().includes("fail")) {
+            statusElement.style.color = "#f44336";
+          } else {
+            statusElement.style.color = "#ff9800";
+          }
+        }
+      }
+
+      /**
+       * Build JSON object from form fields or JSON input matching Lambda expectations
+       */
+      function buildDynamoDBObject() {
+        console.log("🔨 Building order data object...");
+        console.log("Current wsConnectionId value:", wsConnectionId);
+        
+        const jsonInput = document.getElementById("jsonInput").value.trim();
+        
+        // If JSON input is provided, parse and return it
+        if (jsonInput) {
+          try {
+            const parsed = JSON.parse(jsonInput);
+            console.log("📋 Parsed JSON input:", parsed);
+            
+            // Always add connectionId if available
+            if (wsConnectionId && !parsed.connectionId) {
+              parsed.connectionId = wsConnectionId;
+              console.log("✅ Added connectionId to parsed JSON:", wsConnectionId);
+            } else if (!wsConnectionId && !parsed.connectionId) {
+              console.error("❌ No connectionId available - request will likely fail!");
+            }
+            return parsed;
+          } catch (error) {
+            throw new Error("Invalid JSON format");
+          }
+        }
+        
+        // Otherwise, build from form fields
+        const orderId = document.getElementById("orderId").value.trim();
+        const sku = document.getElementById("sku").value.trim();
+        const amount = parseFloat(document.getElementById("amount").value);
+        const available = parseInt(document.getElementById("available").value);
+        const reserved = parseInt(document.getElementById("reserved").value);
+        
+        // Get connectionId from input field (which should be auto-filled from WebSocket)
+        const connectionId = connectionIdInput.value.trim();
+        
+        console.log("📝 Form field values:");
+        console.log("  - orderId:", orderId);
+        console.log("  - connectionId:", connectionId);
+        console.log("  - sku:", sku);
+        console.log("  - amount:", amount);
+        console.log("  - available:", available);
+        console.log("  - reserved:", reserved);
+        
+        // Validate required fields
+        if (!orderId) {
+          throw new Error("Order ID is required");
+        }
+        if (!connectionId) {
+          console.error("❌ CRITICAL: No connectionId available!");
+          console.error("WebSocket may not have sent connectionId yet.");
+          console.error("Backend Lambda requires this field and will throw MISSING_CONNECTION_ID error.");
+          throw new Error("Connection ID is required but not available. Please wait for WebSocket to connect.");
+        }
+        if (!sku || available < 0 || reserved < 0 || amount <= 0) {
+          throw new Error("Please provide valid product details");
+        }
+        
+        // Build object matching Lambda expectations
+        const orderData = {
+          orderId: orderId,
+          connectionId: connectionId,
+          sku: sku,
+          amount: amount,
+          available: available,
+          reserved: reserved
+        };
+        
+        console.log("✅ Built order data object:", JSON.stringify(orderData, null, 2));
+        console.log("🔍 Verifying required fields:");
+        console.log("  - orderId present:", !!orderData.orderId);
+        console.log("  - connectionId present:", !!orderData.connectionId);
+        console.log("  - amount present:", !!orderData.amount);
+        
+        return orderData;
+      }
+
+      /**
+       * Display JSON payload in the viewer
+       */
+      function displayJSON(data) {
+        jsonViewer.style.display = "block";
+        jsonDisplay.textContent = JSON.stringify(data, null, 2);
+      }
+
+      /**
+       * Reset the status display to initial state
+       */
+      function resetStatus() {
+        submittedStatus.style.display = "none";
+        processingStatus.style.display = "none";
+        resultStatus.style.display = "none";
+        errorMessage.style.display = "none";
+        resultStatus.className = "status-item";
+      }
+
+      /**
+       * Display error message to the user
+       */
+      function showError(message) {
+        errorMessage.textContent = message;
+        errorMessage.style.display = "block";
+        processingStatus.style.display = "none";
+        submitBtn.disabled = false;
+        putBtn.disabled = false;
+      }
+
+      /**
+       * Show final result (success or refunded)
+       */
+      function showResult(status, message) {
+        processingStatus.style.display = "none";
+        resultStatus.style.display = "flex";
+
+        // Set appropriate styling based on status
+        if (status === "success") {
+          resultStatus.className = "status-item success";
+          resultStatus.querySelector(".status-icon").textContent = "✓";
+        } else if (status === "refunded") {
+          resultStatus.className = "status-item refunded";
+          resultStatus.querySelector(".status-icon").textContent = "↺";
+        } else {
+          resultStatus.className = "status-item error";
+          resultStatus.querySelector(".status-icon").textContent = "✗";
+        }
+
+        resultText.textContent = message;
+        submitBtn.disabled = false;
+        putBtn.disabled = false;
+      }
+
+      /**
+       * Put object to the API using PUT method
+       */
+      async function putObject(objectData) {
+        try {
+          // Display the JSON being sent
+          displayJSON(objectData);
+
+          // Make PUT request to API Gateway
+          const response = await fetch(API_ENDPOINT, {
+            method: "PUT",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify(objectData),
+          });
+
+          // Check if response is OK
+          if (!response.ok) {
+            throw new Error(`HTTP error! Status: ${response.status}`);
+          }
+
+          // Parse JSON response
+          const data = await response.json();
+
+          // Display result based on API response
+          if (data.status === "success") {
+            showResult(
+              "success",
+              data.message || "Object put successfully!",
+            );
+          } else {
+            showResult("error", data.message || "Object put completed");
+          }
+        } catch (error) {
+          console.error("Error putting object:", error);
+          showError(`Failed to put object: ${error.message}`);
+        }
+      }
+
+      /**
+       * Submit order to the API
+       */
+      async function submitOrder(orderData) {
+        try {
+          // Display the JSON being sent
+          displayJSON(orderData);
+
+          // Make POST request to API Gateway
+          const response = await fetch(API_ENDPOINT, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify(orderData),
+          });
+
+          // Check if response is OK
+          if (!response.ok) {
+            throw new Error(`HTTP error! Status: ${response.status}`);
+          }
+
+          // Parse JSON response
+          const data = await response.json();
+
+          // Display result based on API response
+          if (data.status === "success") {
+            showResult(
+              "success",
+              data.message || "Order processed successfully!",
+            );
+          } else if (data.status === "refunded") {
+            showResult("refunded", data.message || "Order was refunded");
+          } else {
+            showResult("error", data.message || "Order processing completed");
+          }
+        } catch (error) {
+          console.error("Error submitting order:", error);
+          showError(`Failed to submit order: ${error.message}`);
+        }
+      }
+
+      /**
+       * Handle Put Object button click
+       */
+      putBtn.addEventListener("click", async () => {
+        try {
+          // Build JSON object from form or JSON input
+          const objectData = buildDynamoDBObject();
+
+          // Reset and show status section
+          resetStatus();
+          statusSection.classList.add("show");
+
+          // Disable buttons during processing
+          submitBtn.disabled = true;
+          putBtn.disabled = true;
+
+          // Show "Order submitted" status
+          submittedStatus.style.display = "flex";
+          document.getElementById("submittedStatus").querySelector("span:last-child").textContent = "Object submission initiated";
+
+          // After a brief delay, show "Processing..." status
+          setTimeout(() => {
+            processingStatus.style.display = "flex";
+          }, 500);
+
+          // Put the object
+          await putObject(objectData);
+        } catch (error) {
+          showError(error.message);
+        } finally {
+          submitBtn.disabled = false;
+          putBtn.disabled = false;
+        }
+      });
+
+      /**
+       * Handle form submission
+       */
+      orderForm.addEventListener("submit", async (event) => {
+        event.preventDefault();
+
+        try {
+          // Build JSON object from form or JSON input
+          const orderData = buildDynamoDBObject();
+
+          // Reset and show status section
+          resetStatus();
+          statusSection.classList.add("show");
+
+          // Disable buttons during processing
+          submitBtn.disabled = true;
+          putBtn.disabled = true;
+
+          // Show "Order submitted" status
+          submittedStatus.style.display = "flex";
+          document.getElementById("submittedStatus").querySelector("span:last-child").textContent = "Order submitted";
+
+          // After a brief delay, show "Processing..." status
+          setTimeout(() => {
+            processingStatus.style.display = "flex";
+          }, 500);
+
+          // Submit the order
+          await submitOrder(orderData);
+        } catch (error) {
+          showError(error.message);
+        } finally {
+          submitBtn.disabled = false;
+          putBtn.disabled = false;
+        }
+      });
+
+      // Focus on first input on page load
+      document.getElementById("orderId").focus();
+    </script>
+  </body>
+</html>
