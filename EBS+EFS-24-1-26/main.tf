@@ -126,7 +126,7 @@ resource "aws_security_group" "efs_sg" {
 resource "aws_instance" "ebs_instance" {
   ami                         = data.aws_ami.amazon_linux_2023.id
   instance_type               = "t3.micro"
-  key_name                    = "bastion-11-1-26"
+  key_name                    = "#"
   subnet_id                   = data.aws_subnet.first.id
   vpc_security_group_ids      = [aws_security_group.ec2_sg.id]
   associate_public_ip_address = true
@@ -190,7 +190,7 @@ resource "aws_efs_mount_target" "efs_mount" {
 resource "aws_instance" "efs_instance_1" {
   ami                         = data.aws_ami.amazon_linux_2023.id
   instance_type               = "t3.micro"
-  key_name                    = "bastion-11-1-26"
+  key_name                    = "#"
   subnet_id                   = data.aws_subnet.first.id
   vpc_security_group_ids      = [aws_security_group.ec2_sg.id]
   associate_public_ip_address = true
@@ -226,7 +226,7 @@ resource "aws_instance" "efs_instance_1" {
 resource "aws_instance" "efs_instance_2" {
   ami                         = data.aws_ami.amazon_linux_2023.id
   instance_type               = "t3.micro"
-  key_name                    = "bastion-11-1-26"
+  key_name                    = "#"
   subnet_id                   = data.aws_subnet.first.id
   vpc_security_group_ids      = [aws_security_group.ec2_sg.id]
   associate_public_ip_address = true
@@ -291,9 +291,9 @@ output "efs_dns_name" {
 output "ssh_commands" {
   description = "SSH commands to connect to instances"
   value = {
-    ebs_instance   = "ssh -i bastion-11-1-26.pem ec2-user@${aws_instance.ebs_instance.public_ip}"
-    efs_instance_1 = "ssh -i bastion-11-1-26.pem ec2-user@${aws_instance.efs_instance_1.public_ip}"
-    efs_instance_2 = "ssh -i bastion-11-1-26.pem ec2-user@${aws_instance.efs_instance_2.public_ip}"
+    ebs_instance   = "ssh -i #m ec2-user@${aws_instance.ebs_instance.public_ip}"
+    efs_instance_1 = "ssh -i # ec2-user@${aws_instance.efs_instance_1.public_ip}"
+    efs_instance_2 = "ssh -i # ec2-user@${aws_instance.efs_instance_2.public_ip}"
   }
 }
 
@@ -324,3 +324,4 @@ output "efs_mount_commands" {
     cat /data-efs/shared.txt
   EOT
 }
+
