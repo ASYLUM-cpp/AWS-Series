@@ -1,23 +1,5 @@
 # Kubernetes Cluster + Monitoring (Prometheus & Grafana)
 
-## LinkedIn Post (Minimal, Humanized)
-
-Built a Kubernetes cluster **from scratch on AWS** (no EKS), wired the networking manually, and then layered **real monitoring** on top using **Prometheus + Grafana**.
-
-What I worked through:
-
-* Control plane + multiple worker nodes
-* Container runtime, CNI, kubeadm bootstrap
-* Node-level networking (Pod CIDRs, bridges, veth pairs)
-* NodePort vs ClusterIP behavior in real traffic
-* Prometheus scraping via Node Exporter (DaemonSet)
-* Debugging *"everything is running but no data"* scenarios
-
-This wasn’t about dashboards.
-It was about understanding **what talks to what, over which IP, and why**.
-
-Hands dirty > managed magic.
-
 ---
 
 ## Detailed Technical Walkthrough
