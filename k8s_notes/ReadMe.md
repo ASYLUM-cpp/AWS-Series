@@ -1,8 +1,6 @@
 
 
 ---
-
-````markdown
 # Kubernetes Services and Networking Concepts
 
 This part explains the core Kubernetes networking components, including **Pods, Deployments, Nodes, Services**, and how they interconnect. It also covers **ClusterIP, NodePort, and LoadBalancer** with practical examples.
@@ -193,7 +191,7 @@ Internet --> Cloud LoadBalancer --> NodePort (workers) --> ClusterIP --> Pods
 * NodePort / LoadBalancer: external traffic
 * kube-proxy handles routing
 * Deployments ensure Pod availability
-
+```
 Kubernetes Cluster
 ├── Master Node (Control Plane)
 │    ├── kube-apiserver   <-- API entry point, accepts kubectl requests
@@ -234,7 +232,7 @@ Kubernetes Cluster
      ├── NodePort Service (exposes pod on a port of all nodes)
      └── LoadBalancer Service (cloud LB to distribute external traffic to nodes)
 
-
+```
 
 ---
 
